@@ -1,0 +1,166 @@
+##############################################################################
+# Copyright (c) 2018 Enea AB and others.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Apache License, Version 2.0
+# which accompanies this distribution, and is available at
+# http://www.apache.org/licenses/LICENSE-2.0
+##############################################################################
+---
+### Picopod descriptor file ###
+
+version: 1.0
+details:
+  pod_owner: ENEA AB
+  contact: dan.lilliehorn@enea.com
+  lab: ENEA lab
+  location: Stockholm, Sweden
+  type: production
+  link: https://wiki.opnfv.org/display/pharos/Enea+Hosting
+##############################################################################
+jumphost:
+  name: enea-ons-picopod
+  node: &nodeparams
+    type: baremetal
+    vendor: Marvell
+    model: Armada 8040 MacchiatoBin
+    arch: aarch64
+    cpus: 2
+    cpu_cflags: fp asimd evtstrm aes pmull sha1 sha2 crc32
+    cores: 4
+    memory: 16G
+  disks: &disks
+    - name: disk1
+      disk_capacity: 120G
+      disk_type: ssd
+      disk_interface: sata
+      disk_rotation: 0
+  os: centos-7
+  remote_params: &remote_params
+    type: ipmi
+    versions:
+      - 2.0
+    user: admin
+    pass: admin
+  remote_management:
+    <<: *remote_params
+    address: 10.0.1.32  # Not used, so random values are left in
+    mac_address: "02:50:43:ff:07:ff"
+  interfaces:
+    - mac_address: "02:50:43:ff:07:01"
+      speed: 10gb
+      features: 'dpdk|sriov'
+      name: 'nic1'
+    - mac_address: "02:50:43:ff:07:04"
+      speed: 10gb
+      features: 'dpdk|sriov'
+      name: 'nic2'
+    - mac_address: "02:50:43:ff:07:05"
+      speed: 1gb
+      features: ''
+      name: 'nic3'
+##############################################################################
+nodes:
+  - name: mcbin-8
+    node: *nodeparams
+    disks: *disks
+    remote_management:
+      <<: *remote_params
+      address: 10.0.8.3
+      mac_address: "02:50:43:ff:08:ff"
+    interfaces:
+      - mac_address: "02:50:43:ff:08:01"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic1'
+      - mac_address: "02:50:43:ff:08:04"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic2'
+      - mac_address: "02:50:43:ff:08:05"
+        speed: 1gb
+        features: ''
+        name: 'nic3'
+  ############################################################################
+  - name: mcbin-9
+    node: *nodeparams
+    disks: *disks
+    remote_management:
+      <<: *remote_params
+      address: 10.0.8.4
+      mac_address: "02:50:43:ff:09:ff"
+    interfaces:
+      - mac_address: "02:50:43:ff:09:01"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic1'
+      - mac_address: "02:50:43:ff:09:04"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic2'
+      - mac_address: "02:50:43:ff:09:05"
+        speed: 1gb
+        features: ''
+        name: 'nic3'
+  ############################################################################
+  - name: mcbin-10
+    node: *nodeparams
+    disks: *disks
+    remote_management:
+      <<: *remote_params
+      address: 10.0.8.5
+      mac_address: "02:50:43:ff:0a:ff"
+    interfaces:
+      - mac_address: "02:50:43:ff:0a:01"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic1'
+      - mac_address: "02:50:43:ff:0a:04"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic2'
+      - mac_address: "02:50:43:ff:0a:05"
+        speed: 1gb
+        features: ''
+        name: 'nic3'
+  ############################################################################
+  - name: mcbin-11
+    node: *nodeparams
+    disks: *disks
+    remote_management:
+      <<: *remote_params
+      address: 10.0.8.6
+      mac_address: "02:50:43:ff:0b:ff"
+    interfaces:
+      - mac_address: "02:50:43:ff:0b:01"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic1'
+      - mac_address: "02:50:43:ff:0b:04"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic2'
+      - mac_address: "02:50:43:ff:0b:05"
+        speed: 1gb
+        features: ''
+        name: 'nic3'
+  ############################################################################
+  - name: mcbin-12
+    node: *nodeparams
+    disks: *disks
+    remote_management:
+      <<: *remote_params
+      address: 10.0.8.7
+      mac_address: "02:50:43:ff:0c:ff"
+    interfaces:
+      - mac_address: "02:50:43:ff:0c:01"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic1'
+      - mac_address: "02:50:43:ff:0c:04"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic2'
+      - mac_address: "02:50:43:ff:0c:05"
+        speed: 1gb
+        features: ''
+        name: 'nic3'
