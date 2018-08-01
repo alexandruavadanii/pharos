@@ -21,4 +21,4 @@ enea-hybrid1
 - multiarch (x86_64 + aarch64) hybrid (virtual + baremetal) POD, ha without VCP;
 - 1 x FN (x86_64);
 - 3 x FN VM nodes (x86_64);
-- 2 x baremetal nodes (aarch64);
+- 3 x baremetal nodes (aarch64);

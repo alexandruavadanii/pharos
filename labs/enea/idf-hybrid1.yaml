@@ -1,0 +1,156 @@
+##############################################################################
+# Copyright (c) 2018 Ericsson AB, Mirantis Inc., Enea AB and others.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Apache License, Version 2.0
+# which accompanies this distribution, and is available at
+# http://www.apache.org/licenses/LICENSE-2.0
+##############################################################################
+---
+### Fuel@OPNFV sample HYBRID installer descriptor file ###
+
+idf:
+  version: 0.1
+  net_config:
+    oob:
+      interface: 0
+      vlan: native
+      ip-range: 10.0.16.2-10.0.16.6
+    # Interface indexes are based on Fuel installer defaults
+    # NOTE(hybrid): Interface indexes must be the same for all nodes, which is
+    # problematic when mixing virtual nodes (where all interfaces were untagged
+    # so far) with baremetal nodes (where interfaces usually carry tagged
+    # vlans).
+    # To achieve this, a special jumpserver network layout is used:
+    # - mgmt, storage, private, public are trunked together in a single bridge:
+    #   * without decapsulating them (if they are also tagged on baremetal);
+    #     NOTE: a <bridge>.<vlan_tag> interface should be created for each
+    #     tagged VLAN so the kernel won't drop the packets.
+    #   * by decapsulating them  first (if they are also untagged on b/m);
+    # e.g. For this particular POD, public is decapsulated on the jump to
+    # align the configuration with the baremetal nodes.
+    # The trunk bridge is then used for all bridges Fuel@OPNFV is aware of.
+    admin:
+      interface: 0  # when used, will be first vnet interface, untagged
+      vlan: native
+      network: 192.168.11.0
+      mask: 24
+    mgmt:
+      vlan: 2343
+      network: 172.16.10.0
+      ip-range: 172.16.10.10-172.16.10.254  # Some IPs are in use by lab infra
+      interface: 1  # when used, will be second vnet interface, untagged
+      mask: 24
+    storage:
+      interface: 1
+      vlan: 2344
+      network: 10.2.0.0
+      mask: 24
+    private:
+      interface: 1  # only used on cmp (baremetal) nodes (?)
+      vlan: 2345-2360
+      network: 10.1.0.0
+      mask: 24
+    public:
+      interface: 1
+      vlan: native
+      network: 10.0.16.0
+      ip-range: 10.0.16.100-10.0.16.253  # Some IPs are in use by lab infra
+      mask: 24
+      gateway: 10.0.16.254
+      dns:
+        - 8.8.8.8
+        - 8.8.4.4
+  fuel:
+    jumphost:
+      bridges:
+        # NOTE: Since we need to create a 'trunk15.2343' interface, special
+        # care is required to fit withing the strlen limit for iface names.
+        admin: 'admin15_br0'
+        mgmt: 'trunk15'
+        private: 'trunk15'
+        public: 'trunk15'
+      trunks:
+        # NOTE: mgmt network is not decapsulated for jumpserver infra VMs, to
+        # align with the VLAN configuration of baremetal nodes.
+        mgmt: True
+    maas:
+      # MaaS timeouts (in minutes)
+      timeout_comissioning: 10
+      timeout_deploying: 15
+    network:
+      ntp_strata_host1: 1.se.pool.ntp.org
+      ntp_strata_host2: 0.se.pool.ntp.org
+      node:
+        # Ordered-list, index should be in sync with node index in PDF
+        - interfaces: &interfaces_a
+            # Ordered-list, index should be in sync with interface index in PDF
+            - 'ens3'
+            - 'ens4'
+            - 'ens5'
+            - 'ens6'
+          busaddr: &busaddr_a
+            # Bus-info reported by `ethtool -i ethX`
+            - '0000:00:03.0'
+            - '0000:00:04.0'
+            - '0000:00:05.0'
+            - '0000:00:06.0'
+        - interfaces: *interfaces_a
+          busaddr: *busaddr_a
+        - interfaces: *interfaces_a
+          busaddr: *busaddr_a
+        - interfaces: &interfaces_b
+            # Ordered-list, index should be in sync with interface index in PDF
+            - 'enP5s3'
+            - 'enP2p1s0f2'
+            - 'enP2p1s0f1'
+            - 'enP2p1s0f3'
+          busaddr: &busaddr_b
+            # Bus-info reported by `ethtool -i ethX`
+            - '0005:90:00.0'
+            - '0002:01:00.2'
+            - '0002:01:00.1'
+            - '0002:01:00.3'
+        - interfaces: *interfaces_b
+          busaddr: *busaddr_b
+        - interfaces: *interfaces_b
+          busaddr: *busaddr_b
+    reclass:
+      node:
+        - compute_params: &compute_params_a
+            common: &compute_params_common_a
+              compute_hugepages_size: 2M
+              compute_hugepages_count: 2048
+              compute_hugepages_mount: /mnt/hugepages_2M
+            dpdk:
+              <<: *compute_params_common_a
+              compute_dpdk_driver: uio
+              compute_ovs_pmd_cpu_mask: "0x6"
+              compute_ovs_dpdk_socket_mem: "1024"
+              compute_ovs_dpdk_lcore_mask: "0x8"
+              compute_ovs_memory_channels: "2"
+              dpdk0_driver: igb_uio
+              dpdk0_n_rxq: 2
+        - compute_params: *compute_params_a
+        - compute_params: *compute_params_a
+        - compute_params: &compute_params_b
+            common:
+              nova_cpu_pinning: &nova_cpu_pinning_common_b "2-47"
+              compute_hugepages_size: 2M
+              compute_hugepages_count: 8192
+              compute_hugepages_mount: /mnt/hugepages_2M
+              compute_kernel_isolcpu: *nova_cpu_pinning_common_b
+            dpdk:
+              nova_cpu_pinning: "4-47"
+              compute_hugepages_size: 2M
+              compute_hugepages_count: 8192
+              compute_hugepages_mount: /mnt/hugepages_2M
+              compute_kernel_isolcpu: *nova_cpu_pinning_common_b
+              compute_dpdk_driver: vfio
+              compute_ovs_pmd_cpu_mask: "0xc"
+              compute_ovs_dpdk_socket_mem: "4096"
+              compute_ovs_dpdk_lcore_mask: "0xc"
+              compute_ovs_memory_channels: "2"
+              dpdk0_driver: vfio-pci
+              dpdk0_n_rxq: 2
+        - compute_params: *compute_params_b
+        - compute_params: *compute_params_b

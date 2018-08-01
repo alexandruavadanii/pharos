@@ -1,0 +1,220 @@
+##############################################################################
+# Copyright (c) 2018 Ericsson AB, Mirantis Inc., Enea AB and others.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Apache License, Version 2.0
+# which accompanies this distribution, and is available at
+# http://www.apache.org/licenses/LICENSE-2.0
+##############################################################################
+---
+### Fuel@OPNFV sample HYBRID POD descriptor file ###
+
+version: 1.0
+details:
+  pod_owner: Fuel@OPNFV
+  contact: Fuel@OPNFV.org
+  lab: Example Lab
+  location: Example Location
+  type: development
+  link: https://wiki.opnfv.org/display/pharos/
+##############################################################################
+jumphost:
+  name: hybrid1-jump
+  node:
+    type: baremetal
+    vendor: HP
+    model: ProLiant BL460c Gen8
+    arch: x86_64
+    cpus: 2
+    cpu_cflags: ivybridge
+    cores: 10
+    memory: 64G
+  disks:
+    - name: 'disk1'
+      disk_capacity: 800G
+      disk_type: hdd
+      disk_interface: scsi
+      disk_rotation: 15000
+  os: ubuntu-16.04
+  remote_params: &remote_params
+    type: ipmi
+    versions:
+      - 2.0
+    user: admin
+    pass: admin
+  remote_management:
+    <<: *remote_params
+    address: 0.0.0.0
+    mac_address: "00:00:00:00:00:00"
+  interfaces:
+    - name: 'nic1'
+      speed: 10gb
+      features: 'dpdk|sriov'
+      mac_address: "00:00:00:00:00:00"
+      vlan: native
+    - name: 'nic2'
+      speed: 10gb
+      features: 'dpdk|sriov'
+      mac_address: "00:00:00:00:00:00"
+      vlan: native
+##############################################################################
+nodes:
+  ############################################################################
+  # Virtual nodes (x86_64)
+  ############################################################################
+  - name: node-1
+    node: &nodeparams
+      # Fuel overrides certain params (e.g. cpus, mem) based on node role later
+      type: virtual
+      vendor: libvirt
+      model: virt
+      arch: x86_64
+      cpus: 1
+      cpu_cflags: ivybridge
+      cores: 8
+      memory: 6G
+    disks: &disks
+      - name: 'disk1'
+        disk_capacity: 100G
+        disk_type: hdd
+        disk_interface: scsi  # virtio-scsi
+        disk_rotation: 15000
+    remote_management: &remotemgmt
+      type: libvirt
+      user: changeme
+      pass: changeme
+      address: 127.0.0.1  # Not used currently, will be 'qemu:///system' later
+    interfaces: &interfaces
+      - name: 'nic1'
+        speed: 10gb
+        features: 'dpdk|sriov'
+        mac_address: "00:00:00:00:00:00"  # MACs will be assigned by libvirt
+        vlan: native
+      - name: 'nic2'
+        speed: 10gb
+        features: 'dpdk|sriov'
+        mac_address: "00:00:00:00:00:00"
+        vlan: native
+      - name: 'nic3'
+        speed: 10gb
+        features: 'dpdk|sriov'
+        mac_address: "00:00:00:00:00:00"
+        vlan: native
+      - name: 'nic4'
+        speed: 10gb
+        features: 'dpdk|sriov'
+        mac_address: "00:00:00:00:00:00"
+        vlan: native
+  ############################################################################
+  - name: node-2
+    node: *nodeparams
+    disks: *disks
+    remote_management: *remotemgmt
+    interfaces: *interfaces
+  ############################################################################
+  - name: node-3
+    node: *nodeparams
+    disks: *disks
+    remote_management: *remotemgmt
+    interfaces: *interfaces
+  ############################################################################
+  # Baremetal nodes (aarch64)
+  ############################################################################
+  - name: cn8890-6
+    node: &nodeparams_a
+      type: baremetal
+      vendor: Cavium
+      model: ThunderX
+      arch: aarch64
+      cpus: 1
+      cpu_cflags: fp asimd evtstrm aes pmull sha1 sha2 crc32
+      cores: 48
+      memory: 128G
+    disks: &disks_a
+      - name: 'disk1'
+        disk_capacity: 500G
+        disk_type: hdd
+        disk_interface: sata
+        disk_rotation: 7200
+    remote_management:
+      <<: *remote_params
+      address: 10.0.16.2
+      mac_address: "40:8D:5C:BA:D2:32"
+    interfaces:
+      # enP5s3, Connected, used only for admin/PXE
+      - mac_address: "68:05:ca:3d:93:14"
+        speed: 1gb
+        features: ''
+        name: 'nic1'
+      # enP2p1s0f2, Connected, trunk for all other VLANs
+      - mac_address: "00:0f:b7:03:00:c1"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic2'
+      # enP2p1s0f1, Not connected
+      - mac_address: "00:0f:b7:03:00:c0"
+        speed: 1gb
+        features: ''
+        name: 'nic3'
+      # enP2p1s0f3, Not connected
+      - mac_address: "00:0f:b7:03:00:c2"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic4'
+  ############################################################################
+  - name: cn8890-8
+    node: *nodeparams_a
+    disks: *disks_a
+    remote_management:
+      <<: *remote_params
+      address: 10.0.16.3
+      mac_address: "40:8D:5C:BA:B9:60"
+    interfaces:
+      # enP5s3, Connected, used only for admin/PXE
+      - mac_address: "68:05:ca:3f:7f:f3"
+        speed: 1gb
+        features: ''
+        name: 'nic1'
+      # enP2p1s0f2, Connected, trunk for all other VLANs
+      - mac_address: "00:0f:b7:05:00:c1"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic2'
+      # enP2p1s0f1, Not connected
+      - mac_address: "00:0f:b7:05:00:c0"
+        speed: 1gb
+        features: ''
+        name: 'nic3'
+      # enP2p1s0f3, Not connected
+      - mac_address: "00:0f:b7:05:00:c2"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic4'
+  ############################################################################
+  - name: cn8890-10
+    node: *nodeparams_a
+    disks: *disks_a
+    remote_management:
+      <<: *remote_params
+      address: 10.0.16.4
+      mac_address: "40:8D:5C:BA:B9:65"
+    interfaces:
+      # enP5s3, Connected, used only for admin/PXE
+      - mac_address: "68:05:ca:3d:93:0f"
+        speed: 1gb
+        features: ''
+        name: 'nic1'
+      # enP2p1s0f2, Connected, trunk for all other VLANs
+      - mac_address: "00:0f:b7:07:00:c1"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic2'
+      # enP2p1s0f1, Not connected
+      - mac_address: "00:0f:b7:07:00:c0"
+        speed: 1gb
+        features: ''
+        name: 'nic3'
+      # enP2p1s0f3, Not connected
+      - mac_address: "00:0f:b7:07:00:c2"
+        speed: 10gb
+        features: 'dpdk|sriov'
+        name: 'nic4'
