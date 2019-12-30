@@ -116,12 +116,32 @@ nodes:
   ############################################################################
   - name: node-4
     node: *nodeparams
-    disks: *disks
+    disks:
+      - name: 'disk1'
+        disk_capacity: 100G
+        disk_type: hdd
+        disk_interface: scsi  # virtio-scsi
+        disk_rotation: 15000
+      - name: 'disk2'
+        disk_capacity: 100G
+        disk_type: hdd
+        disk_interface: scsi  # virtio-scsi
+        disk_rotation: 15000
     remote_management: *remotemgmt
     interfaces: *interfaces
   ############################################################################
   - name: node-5
     node: *nodeparams
-    disks: *disks
+    disks:
+      - name: 'disk1'
+        disk_capacity: 100G
+        disk_type: hdd
+        disk_interface: scsi  # virtio-scsi
+        disk_rotation: 15000
+      - name: 'disk2'
+        disk_capacity: 100G
+        disk_type: hdd
+        disk_interface: scsi  # virtio-scsi
+        disk_rotation: 15000
     remote_management: *remotemgmt
     interfaces: *interfaces
