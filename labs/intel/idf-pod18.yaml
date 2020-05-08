@@ -21,7 +21,6 @@ idf:
       vlan: native
       network: 10.10.181.0
       mask: 24
-      bridge: brAdm
     mgmt:  # data
       interface: 2
       vlan: 184
@@ -38,7 +37,6 @@ idf:
       vlan: 1000-1030
       network: 10.10.182.0
       mask: 24
-      bridge: brExt
     public:  # public
       interface: 3
       vlan: 1183
@@ -101,3 +99,19 @@ idf:
             - '0000:05:00.1'
             - '0000:05:00.2'
             - '0000:05:00.3'
+    reclass:
+      node:
+        - compute_params: &compute_params
+            common:
+              compute_hugepages_size: 1G
+              compute_hugepages_count: 16
+              compute_hugepages_mount: /mnt/hugepages_1G
+            sriov:
+              sriov_nic01_device_name: 'ens785f1'
+              sriov_nic01_numvfs: 7
+              sriov_nic01_physical_network: physnet3
+              sriov_unsafe_interrupts: False
+        - compute_params: *compute_params
+        - compute_params: *compute_params
+        - compute_params: *compute_params
+        - compute_params: *compute_params

@@ -136,6 +136,22 @@ definitions:
                                    'compute_ovs_dpdk_socket_mem',
                                    'compute_ovs_dpdk_lcore_mask']
                         additionalProperties: false
+                      sriov:  # Optional
+                        type: 'object'
+                        properties:
+                          sriov_nic01_device_name:
+                            type: 'string'
+                          sriov_nic01_numvfs:
+                            type: ['string', 'number']
+                          sriov_nic01_physical_network:
+                            type: 'string'
+                          sriov_unsafe_interrupts:
+                            type: ['string', 'boolean']
+                        required: ['sriov_nic01_device_name',
+                                   'sriov_nic01_numvfs',
+                                   'sriov_nic01_physical_network',
+                                   'sriov_unsafe_interrupts']
+                        additionalProperties: false
                     additionalProperties: false
                 required: ['compute_params']
                 additionalProperties: false
